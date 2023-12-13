@@ -10,7 +10,16 @@ unsigned char len = 0;            // storage for can data
 unsigned char rxBuf[8];           // storage for can data
 
 #define CAN0_INT 2                // Set INT to pin 2
-MCP_CAN CAN0(10);                 // set CS pin to 10r
+MCP_CAN CAN0(10);                 // set CS pin to 10
+
+// Define a global variable for the base CAN address
+int AVIsendCANAddress = 0x2C0;
+int DPIsendCANAddress1 = 0x2C2;
+int DPIsendCANAddress2 = 0x2C4;
+int DPOrxCANAddress1 = 0x2D0;
+int DPOrxCANAddress2 = 0x2D2;
+int KeepAliveCANAddress = 0x2C6;
+
 
 // Define the digital pins for the DPO outputs
 const int DPO1 = 3;
@@ -75,7 +84,19 @@ void setup() {
   pinMode(DPI1input, INPUT_PULLUP); // Remove "_PULLUP" if you want to use external pullup resistors, pull up to 5v only
   pinMode(DPI2input, INPUT_PULLUP);
   pinMode(DPI3input, INPUT_PULLUP);
-  pinMode(DPI4input, INPUT_PULLUP);      
+  pinMode(DPI4input, INPUT_PULLUP);
+
+ // IO Box A or B Mode
+  pinMode(A5, INPUT_PULLUP);                       // Set the analog pin 5 as input
+  int digitalValue = digitalRead(A5);       // Read the digital value from analog pin 5
+    if (digitalValue == LOW) {
+    AVIsendCANAddress++;
+    DPIsendCANAddress1++;
+    DPIsendCANAddress2++;
+    DPOrxCANAddress1++;
+    DPOrxCANAddress2++;
+    KeepAliveCANAddress++;  
+  }
   
   Serial.println("All OK");  // all ready to go !
 }
@@ -121,12 +142,12 @@ void loop() {
 
 
 void canRead() {
-  if (rxId == 0X2D1) {
+  if (rxId == DPOrxCANAddress1) {
     DPO1out = rxBuf[0];
     DPO2out = rxBuf[4];
   }
 
-  if (rxId == 0X2D3) {
+  if (rxId == DPOrxCANAddress2) {
     DPO3out = rxBuf[0];
     DPO4out = rxBuf[4];
   }
@@ -154,7 +175,7 @@ void DriveDigitalPin() {
 
 void SendKeepAlive() {
   byte KeepAlive[5] = { 0X10, 0x08, 0x0a, 0x01, 0x00 };
-  CAN0.sendMsgBuf(0x2C7, 0, 5, KeepAlive);
+  CAN0.sendMsgBuf(KeepAliveCANAddress, 0, 5, KeepAlive);
 }
 
 
@@ -188,8 +209,8 @@ DPIdata2[5] = 0;
 DPIdata2[6] = 0;
 DPIdata2[7] = 0;
 
-CAN0.sendMsgBuf(0x2C3, 0, 8, DPIdata1);
-CAN0.sendMsgBuf(0x2C5, 0, 8, DPIdata2);
+CAN0.sendMsgBuf(DPIsendCANAddress1, 0, 8, DPIdata1);
+CAN0.sendMsgBuf(DPIsendCANAddress2, 0, 8, DPIdata2);
 
 }
 
@@ -239,5 +260,5 @@ void SendAnalogValues() {
     canMsg.m2C1.bytes[6]
   };
 
-  CAN0.sendMsgBuf(0x2C1, 0, 8, SendAnalogue);  // send the can message onto the bus
+  CAN0.sendMsgBuf(AVIsendCANAddress, 0, 8, SendAnalogue);  // send the can message onto the bus
 }
