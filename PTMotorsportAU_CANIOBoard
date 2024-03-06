@@ -1,6 +1,7 @@
 // Original works by https://github.com/tolunaygul
 // Modified by Peter at PT Motorsport AU 
 // This code suits the CAN_IO board from PT Motorsport AU with Arduino Nano and MCP2515 CAN controller
+// Required library "mcp_can by coryjfowler" 
 
 #include <mcp_can.h>
 #include <SPI.h>
