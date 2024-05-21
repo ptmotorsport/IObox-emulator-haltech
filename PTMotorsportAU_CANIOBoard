@@ -1,7 +1,6 @@
 // Original works by https://github.com/tolunaygul
 // Modified by Peter at PT Motorsport AU 
-// This code suits the CAN_IO board from PT Motorsport AU with Arduino Nano and MCP2515 CAN controller
-// Required library "mcp_can by coryjfowler" 
+// This code suits the CAN_IO Nano and Early IO_Mini boards (Feb 2024 and earlier)
 
 #include <mcp_can.h>
 #include <SPI.h>
@@ -175,7 +174,7 @@ void DriveDigitalPin() {
 
 
 void SendKeepAlive() {
-  byte KeepAlive[5] = { 0X10, 0x08, 0x0a, 0x01, 0x00 };
+  byte KeepAlive[5] = { 0X10, 0x0A, 0x0A, 0x00, 0x00 };
   CAN0.sendMsgBuf(KeepAliveCANAddress, 0, 5, KeepAlive);
 }
 
