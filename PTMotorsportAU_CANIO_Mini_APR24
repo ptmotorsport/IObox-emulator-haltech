@@ -1,7 +1,7 @@
 // Original works by https://github.com/tolunaygul
 // Modified by Peter at PT Motorsport AU 
-// This code suits the CAN_IO_Mini_V1.2 (April 2024) board from PT Motorsport AU with Arduino Nano and MCP2515 CAN controller
-// This code is for the 1.2 Mini Board ONLY
+// This code suits the CAN_IO_Mini_V1.2 board from PT Motorsport AU with Arduino Nano and MCP2515 CAN controller
+// This code is for the 1.2 Board
 
 #include <mcp_can.h>
 #include <SPI.h>
@@ -161,19 +161,19 @@ void canRead() {
 
 void DriveDigitalPin() {
     if (DPO1out < 0xFA) {analogWrite(map(DPO1, 0x00, 0xF9, 0, 255), DPO1out); }          //drive analogue output if the received data is < 0xFA
-    if (DPO1out == 0xFA) {digitalWrite(DPO1, HIGH); }                                    //drive the output high if value is 0xFA
+    if (DPO1out >= 0xFA) {digitalWrite(DPO1, HIGH); }                                    //drive the output high if value is 0xFA
     if (DPO1out == 0x00) {digitalWrite(DPO1, LOW); }                                     //drive the output low if value is 0x00
 
     if (DPO2out < 0xFA) {analogWrite(map(DPO2, 0x00, 0xF9, 0, 255), DPO2out); }          //drive analogue output if the received data is < 0xFA
-    if (DPO2out == 0xFA) {digitalWrite(DPO2, HIGH); }                                    //drive the output high if value is 0xFA
+    if (DPO2out >= 0xFA) {digitalWrite(DPO2, HIGH); }                                    //drive the output high if value is 0xFA
     if (DPO2out == 0x00) {digitalWrite(DPO2, LOW); }                                     //drive the output low if value is 0x00
   
     if (DPO3out < 0xFA) {analogWrite(map(DPO3, 0x00, 0xF9, 0, 255), DPO3out); }          //drive analogue output if the received data is < 0xFA
-    if (DPO3out == 0xFA) {digitalWrite(DPO3, HIGH); }                                    //drive the output high if value is 0xFA
+    if (DPO3out >= 0xFA) {digitalWrite(DPO3, HIGH); }                                    //drive the output high if value is 0xFA
     if (DPO3out == 0x00) {digitalWrite(DPO3, LOW); }                                     //drive the output low if value is 0x00
 
     if (DPO4out < 0xFA) {analogWrite(map(DPO4, 0x00, 0xF9, 0, 255), DPO4out); }          //drive analogue output if the received data is < 0xFA
-    if (DPO4out == 0xFA) {digitalWrite(DPO4, HIGH); }                                    //drive the output high if value is 0xFA
+    if (DPO4out >= 0xFA) {digitalWrite(DPO4, HIGH); }                                    //drive the output high if value is 0xFA
     if (DPO4out == 0x00) {digitalWrite(DPO4, LOW); }                                     //drive the output low if value is 0x00
 }
 
