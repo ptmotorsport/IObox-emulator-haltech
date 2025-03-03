@@ -180,7 +180,7 @@ void DriveDigitalPin() {
 
 
 void SendKeepAlive() {
-  byte KeepAlive[5] = { 0X10, 0x0A, 0x0A, 0x01, 0x00 };
+  byte KeepAlive[5] = { 0X10, 0x09, 0x0D, 0x01, 0x00 };
   CAN0.sendMsgBuf(KeepAliveCANAddress, 0, 5, KeepAlive);
 }
 
