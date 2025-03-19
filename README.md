@@ -11,7 +11,7 @@ www.ptmotorsport.com.au
 
 Completed arduino CAN expanders are avalibale on the PT Motorsport AU website in a variety of form factors and price points.
 
-https://www.ptmotorsport.com.au/product/canbus-io-expander-mini-2/
+https://www.ptmotorsport.com.au/product-tag/pt-motorsport-io-expander/
 
 # Supported devices
 The following devices are currently supported
@@ -24,7 +24,13 @@ The following devices are currently supported
 # Supporting hardware
 You'll need a little more than an arduino Uno or Arduino Nano to make this into a reliable and functional bit of equipment.
 All the hardware is avaliable on the PT Motorsport AU wesbite
-https://www.ptmotorsport.com.au/product/canbus-io-expander-mini-2/
+
+https://www.ptmotorsport.com.au/product-tag/pt-motorsport-io-expander/
+
+# Firmware Updates
+To update the firmware we have created this guide
+
+https://www.ptmotorsport.com.au/wp-content/uploads/2025/03/IO-Expander-Firmware-update-Instruction-Manual.pdf
 
 # Licence
 Copyright (c) 2023 - PT Motorsport AU Pty Ltd
