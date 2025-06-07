@@ -87,7 +87,7 @@ void setup() {
   pinMode(DPI4input, INPUT_PULLUP);
 
  // IO Box A or B Mode
-  pinMode(A5, INPUT_PULLUP);                       // Set the analog pin 5 as input
+  pinMode(A5, INPUT_PULLUP); // Set the analog pin 5 as input
   int digitalValue = digitalRead(A5);       // Read the digital value from analog pin 5
     if (digitalValue == LOW) {
     AVIsendCANAddress++;
@@ -108,25 +108,25 @@ void loop() {
 
   unsigned long currentMillis = millis();  // Get current time in milliseconds
 
-  // Execute task 1 every 1 second
+  // Execute task
   if (currentMillis - task1Millis >= task1Interval) {
     task1Millis = currentMillis;
     SendKeepAlive();
   }
 
-  // Execute task 2 every 5 seconds
+  // Execute task 2
   if (currentMillis - task2Millis >= task2Interval) {
     task2Millis = currentMillis;
     SendAnalogValues();
   }
 
-  // Execute task 3 every 3 seconds
+  // Execute task 3
   if (currentMillis - task3Millis >= task3Interval) {
     task3Millis = currentMillis;
     DriveDigitalPin();
   }
 
-  // Execute task 4 every 4 seconds
+  // Execute task 4
   if (currentMillis - task4Millis >= task4Interval) {
     task4Millis = currentMillis;
     SendDPIValues();

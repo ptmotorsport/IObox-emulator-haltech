@@ -89,18 +89,18 @@ void setup() {
   pinMode(DPI4input, INPUT_PULLUP);
 
  // IO Box A or B Mode (A5 is analog only, hence the analog read)
-pinMode(A5, INPUT_PULLUP); // Set the analog pin 5 as input
-int analogValue = analogRead(A5); // Read the analog value from pin A5
+  pinMode(A5, INPUT_PULLUP); // Set the analog pin 5 as input
+  int analogValue = analogRead(A5); // Read the analog value from pin A5
 
 // Compare the analog value to a threshold
-if (analogValue < 512) { // Adjust the threshold as necessary
-  AVIsendCANAddress++;
-  DPIsendCANAddress1++;
-  DPIsendCANAddress2++;
-  DPOrxCANAddress1++;
-  DPOrxCANAddress2++;
-  KeepAliveCANAddress++;  
-}
+    if (analogValue < 512) { // Adjust the threshold as necessary
+    AVIsendCANAddress++;
+    DPIsendCANAddress1++;
+    DPIsendCANAddress2++;
+    DPOrxCANAddress1++;
+    DPOrxCANAddress2++;
+    KeepAliveCANAddress++;  
+  }
   pinMode(LED_PIN, OUTPUT);
   Serial.println("All OK");  // all ready to go !
 }

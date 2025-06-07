@@ -123,14 +123,14 @@ pinMode(A7, INPUT); // Set the analog pin 7 as input (needs an external pullup r
 int analogValue = analogRead(A7); // Read the analog value from pin A7
 
 // Compare the analog value to a threshold
-if (analogValue < 512) { // Adjust the threshold as necessary
-  AVIsendCANAddress++;
-  DPIsendCANAddress1++;
-  DPIsendCANAddress2++;
-  DPOrxCANAddress1++;
-  DPOrxCANAddress2++;
-  KeepAliveCANAddress++;  
-}
+    if (analogValue < 512) { // Adjust the threshold as necessary
+    AVIsendCANAddress++;
+    DPIsendCANAddress1++;
+    DPIsendCANAddress2++;
+    DPOrxCANAddress1++;
+    DPOrxCANAddress2++;
+    KeepAliveCANAddress++;  
+  }
   pinMode(LED_PIN, OUTPUT);
   Serial.println("All OK");  // all ready to go !
 }
@@ -147,19 +147,19 @@ void loop() {
     SendKeepAlive();
   }
 
-  // Execute task 2 
+  // Execute task 2
   if (currentMillis - task2Millis >= task2Interval) {
     task2Millis = currentMillis;
     SendAnalogValues();
   }
 
-  // Execute task 3 
+  // Execute task 3
   if (currentMillis - task3Millis >= task3Interval) {
     task3Millis = currentMillis;
     DPOSafeSate();
   }
 
-  // Execute task 4 
+  // Execute task 4
   if (currentMillis - task4Millis >= task4Interval) {
     task4Millis = currentMillis;
     SendDPIValues();
@@ -430,7 +430,8 @@ void SendAnalogValues() {
   canMsg.m2C1.data.AVI3_V = scaledvalue3;  // add scaled analogue value to message
   canMsg.m2C1.data.AVI4_V = scaledvalue4;  // add scaled analogue value to message
 
-//constuct the can message with correct bytes
+
+  //constuct the can message with correct bytes
   byte SendAnalogue[8] = {
     canMsg.m2C1.bytes[1],
     canMsg.m2C1.bytes[0],
