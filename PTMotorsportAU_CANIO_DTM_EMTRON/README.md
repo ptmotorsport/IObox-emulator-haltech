@@ -1,5 +1,5 @@
-# IO Box Emulator (Haltech Compatible)
-This is an arduino project that will emulate the functionality of a Haltech IO12 CAN expander.
+# IO Box Emulator (Emtron Compatible)
+This is an arduino project that will emulate the functionality of an Emtron EIC16M CAN expander.
 
 The original code was published by tolunaygul, thanks to him for doing the heavy lifting with this code!
 
@@ -13,13 +13,20 @@ Completed arduino CAN expanders are avalibale on the PT Motorsport AU website in
 
 https://www.ptmotorsport.com.au/product-tag/pt-motorsport-io-expander/
 
-# Supported devices
-The following devices are currently supported
+# ECU Setup
+The Emtron EIC16M has 16 Analog inputs, four of which can be changed to display frequencies.
 
-- Haltech
-- Link (see website for CANstream info)
-- ECU Master ADU, PMU, Pro. (See website for DBC file)
-- 
+The PT Motorsport IO expanders are designed around 4 analog inputs, 4 digital inputs, and 4 pulsed outputs.
+
+The functionality of the first four analog inputs remains the same, with 0-5V being sent to the Emtron and seen as a specific voltage input.
+
+Due to the PT Motorsport IO having four digital inputs, the signals sent to the Emtron will display as analog inputs 5-8 in the ECU, but will switch from 0V straight to 5V depending on the switch state. Digital Input 1 on the IO expander can still read frequency messages, and these are sent to the Emtron as well.
+
+Unlike the Emtron EIC16M, the PT Motorsport IO expanders also have 4 output channels, these can also be made to work with the Emtron ECUs. This functionality is achieved within the EMTune program, and details of that can be found in the link below.
+
+A full write up of how to use this firmware and ECU setup can be found here:
+
+https://www.ptmotorsport.com.au/emtron-can-information-for-use-with-pt-motorsport-io-expanders
 
 # Supporting hardware
 You'll need a little more than an arduino Uno or Arduino Nano to make this into a reliable and functional bit of equipment.
