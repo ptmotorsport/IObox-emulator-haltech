@@ -13,13 +13,19 @@ Completed arduino CAN expanders are avalibale on the PT Motorsport AU website in
 
 https://www.ptmotorsport.com.au/product-tag/pt-motorsport-io-expander/
 
+# Firmware Versions
+Due to the number of ECUs and supporting IO devices, our device will function in a number of operation modes. The default mode, and the way that the firware in the top level of this branch will function is the Haltech IO12 mode. This emulates the functionality of the haltech IO12 CAN Expander. The DTM IO and the Mini IO both use the same firmware, it is listed separately for simplicity.
+
+There is a firmware version for Emtron devices whick emulates the Emtron EIC16M CAN expander. This can be found in the PTMotorsportAU_CANIO_DTM_EMTRON folder. 
+There is a firmware version which emulates the Haltech IO16 CAN expander. This can be found in the PTMotorsportAU_CANIO_DTM_IO16 folder.
+
 # Supported devices
 The following devices are currently supported
 
-- Haltech
+- Haltech (IO12 is the default, IO16 is available using the DTM_IO firware)
 - Link (see website for CANstream info)
 - ECU Master ADU, PMU, Pro. (See website for DBC file)
-- 
+- Emtron (Use DTM_Emtron firmware)
 
 # Supporting hardware
 You'll need a little more than an arduino Uno or Arduino Nano to make this into a reliable and functional bit of equipment.
