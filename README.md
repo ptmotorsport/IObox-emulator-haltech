@@ -17,6 +17,7 @@ https://www.ptmotorsport.com.au/product-tag/pt-motorsport-io-expander/
 Due to the number of ECUs and supporting IO devices, our device will function in a number of operation modes. The default mode, and the way that the firware in the top level of this branch will function is the Haltech IO12 mode. This emulates the functionality of the haltech IO12 CAN Expander. The DTM IO and the Mini IO both use the same firmware, it is listed separately for simplicity.
 
 There is a firmware version for Emtron devices whick emulates the Emtron EIC16M CAN expander. This can be found in the PTMotorsportAU_CANIO_DTM_EMTRON folder. 
+
 There is a firmware version which emulates the Haltech IO16 CAN expander. This can be found in the PTMotorsportAU_CANIO_DTM_IO16 folder.
 
 # Supported devices
