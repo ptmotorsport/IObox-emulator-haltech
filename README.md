@@ -22,7 +22,7 @@ There is a firmware version which emulates the Haltech IO16 CAN expander. This c
 # Supported devices
 The following devices are currently supported
 
-- Haltech (IO12 is the default, IO16 is available using the DTM_IO firware)
+- Haltech (IO12 is the default, IO16 is available using the DTM_IO16 firware)
 - Link (see website for CANstream info)
 - ECU Master ADU, PMU, Pro. (See website for DBC file)
 - Emtron (Use DTM_Emtron firmware)
