@@ -412,59 +412,42 @@ CAN0.sendMsgBuf(DPIsendCANAddress1, 0, 8, DPIdata);
 }
 
 void SendAnalogValues() {
+  // 1. Read raw 10-bit values (0-1023)
+  int raw1 = analogRead(A0);
+  int raw2 = analogRead(A1);
+  int raw3 = analogRead(A2);
+  int raw4 = analogRead(A3);
 
-  // struct the analogue values
-  struct m2C1truct {
-    unsigned int AVI1_V : 16;  //0:3-1:0
-    unsigned int AVI2_V : 16;  //2:3-3:0
-    unsigned int AVI3_V : 16;  //4:3-5:0
-    unsigned int AVI4_V : 16;  //6:3-7:0
-  };
+  // 2. Map to 0-5000 (0V to 5V)
+  // Most aftermarket ECUs use 1mv per bit for CAN Volts
+  unsigned int v1 = map(raw1, 0, 1023, 0, 5000);
+  unsigned int v2 = map(raw2, 0, 1023, 0, 5000);
+  unsigned int v3 = map(raw3, 0, 1023, 0, 5000);
+  unsigned int v4 = map(raw4, 0, 1023, 0, 5000);
 
-  // union / make a struct
-  union union_m2C1 {
-    struct m2C1truct data;
-    byte bytes[8];
-  };
+  // 3. Construct the message in LITTLE ENDIAN (Low Byte First)
+  // This matches what the Emtron interpretation logic is showing
+  byte SendAnalogue[8];
 
-  // construct the can message
-  struct canMsg {
-    union_m2C1 m2C1;
-  } canMsg;
+  // AVI 1
+  SendAnalogue[0] = lowByte(v1);  
+  SendAnalogue[1] = highByte(v1); 
+  
+  // AVI 2
+  SendAnalogue[2] = lowByte(v2);
+  SendAnalogue[3] = highByte(v2);
+  
+  // AVI 3
+  SendAnalogue[4] = lowByte(v3);
+  SendAnalogue[5] = highByte(v3);
+  
+  // AVI 4
+  SendAnalogue[6] = lowByte(v4);
+  SendAnalogue[7] = highByte(v4);
 
-  // Scale analog values to 16-bit range (0-65535)
-  unsigned int scaledvalue1 = map(analogRead(A0), 0, 1023, 0, 65535);
-  unsigned int scaledvalue2 = map(analogRead(A1), 0, 1023, 0, 65535);
-  unsigned int scaledvalue3 = map(analogRead(A2), 0, 1023, 0, 65535);
-  unsigned int scaledvalue4 = map(analogRead(A3), 0, 1023, 0, 65535);
-
-  // Cap the scaled values at 34835
-  if (scaledvalue1 > 34835) scaledvalue1 = 34835;
-  if (scaledvalue2 > 34835) scaledvalue2 = 34835;
-  if (scaledvalue3 > 34835) scaledvalue3 = 34835;
-  if (scaledvalue4 > 34835) scaledvalue4 = 34835;
-
-  canMsg.m2C1.data.AVI1_V = scaledvalue1;  // add scaled analogue value to message
-  canMsg.m2C1.data.AVI2_V = scaledvalue2;  // add scaled analogue value to message
-  canMsg.m2C1.data.AVI3_V = scaledvalue3;  // add scaled analogue value to message
-  canMsg.m2C1.data.AVI4_V = scaledvalue4;  // add scaled analogue value to message
-
-  // Construct the CAN message with correct byte order
-  byte SendAnalogue[8] = {
-    canMsg.m2C1.bytes[1],  // High byte of AVI1_V
-    canMsg.m2C1.bytes[0],  // Low byte of AVI1_V
-    canMsg.m2C1.bytes[3],  // High byte of AVI2_V
-    canMsg.m2C1.bytes[2],  // Low byte of AVI2_V
-    canMsg.m2C1.bytes[5],  // High byte of AVI3_V
-    canMsg.m2C1.bytes[4],  // Low byte of AVI3_V
-    canMsg.m2C1.bytes[7],  // High byte of AVI4_V
-    canMsg.m2C1.bytes[6]   // Low byte of AVI4_V
-  };
-
-  // Send the CAN message onto the bus
+  // 4. Send the CAN message
   CAN0.sendMsgBuf(AVIsendCANAddress, 0, 8, SendAnalogue);
 }
-
 
 
 void debugPrint() {
