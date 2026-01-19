@@ -1,11 +1,16 @@
 // Original works by https://github.com/tolunaygul
-// Modified by Peter at PT Motorsport AU to suit the line of PT Motorsport products
+// Modified by Peter at PT Motorsport AU
+// COntibutions by Andrew Dyer
 // This code is for the v1.3 IO-MINI Board & v1.1 IO-DTM Board
 
 
 #include <mcp_can.h>
 #include <SPI.h>
 #include <EEPROM.h>
+typedef union {
+  uint16_t uint16_arry[4] = {0};
+  uint8_t byte_arry[8];
+} Union_16x4_8x8;
 
 long unsigned int rxId;           // storage for can data
 unsigned char len = 0;            // storage for can data
@@ -54,11 +59,6 @@ volatile bool lastState = LOW;
 volatile unsigned long lastInterruptTime = 0;
 const unsigned long timeoutInterval = 2000000; // 2 seconds in microseconds
 
-int scaledvalue1 = 0;              // storage for 12 bit analog value
-int scaledvalue2 = 0;              // storage for 12 bit analog value
-int scaledvalue3 = 0;              // storage for 12 bit analog value
-int scaledvalue4 = 0;              // storage for 12 bit analog value
-
 unsigned long task1Interval = 100; // 100ms (10hz) interval for keep alive frame
 unsigned long task2Interval = 20;  // 20ms (50hz) interval for analogue value sending
 unsigned long task3Interval = 20;  // 20ms (50hz) interval for analogue value reading 
@@ -77,16 +77,14 @@ byte DPO2out = 0;                  // storage for DPO output 2
 byte DPO3out = 0;                  // storage for DPO output 3
 byte DPO4out = 0;                  // storage for DPO output 4
 
-
 void setup() {
-
   // start serial port an send a message with delay for starting
   Serial.begin(115200);   
   Serial.println("analog reading to 12 bit test");
   delay(200);
 
-  // initialize canbus with 1000kbit and 8mhz xtal
-  if (CAN0.begin(MCP_ANY, CAN_1000KBPS, MCP_8MHZ) == CAN_OK) 
+  // initialize canbus with 1000kbit and 8mhz xtal. Only receive standard IDs for filtering
+  if (CAN0.begin(MCP_STD, CAN_1000KBPS, MCP_8MHZ) == CAN_OK) 
   Serial.println("MCP2515 Initialized Successfully!");
   else Serial.println("Error Initializing MCP2515...");
 
@@ -123,22 +121,36 @@ pinMode(A7, INPUT); // Set the analog pin 7 as input (needs an external pullup r
 int analogValue = analogRead(A7); // Read the analog value from pin A7
 
 // Compare the analog value to a threshold
-if (analogValue < 512) { // Adjust the threshold as necessary
-  AVIsendCANAddress++;
-  DPIsendCANAddress1++;
-  DPIsendCANAddress2++;
-  DPOrxCANAddress1++;
-  DPOrxCANAddress2++;
-  KeepAliveCANAddress++;  
-}
-  pinMode(LED_PIN, OUTPUT);
+    if (analogValue < 512) { // Adjust the threshold as necessary
+    AVIsendCANAddress++;
+    DPIsendCANAddress1++;
+    DPIsendCANAddress2++;
+    DPOrxCANAddress1++;
+    DPOrxCANAddress2++;
+    KeepAliveCANAddress++;  
+  }
+
+// Set receive filter to only accept valid RX messages
+// This blocks irrelevent messages in hardware and limmits interuptions to the MCU on highly loaded busses
+  CAN0.init_Mask(0,0,0x07FF0000);
+  CAN0.init_Mask(1,0,0x07FF0000);
+  CAN0.init_Filt(0,0,uint32_t(DPOrxCANAddress1)<<16);
+  CAN0.init_Filt(1,0,uint32_t(DPOrxCANAddress2)<<16);
+  
   Serial.println("All OK");  // all ready to go !
+  Serial.println("Receiving IDs");
+  Serial.println(DPOrxCANAddress1,HEX);
+  Serial.println(DPOrxCANAddress2,HEX);
+  Serial.println("Receive filters set to");
+  Serial.println(uint32_t(DPOrxCANAddress1)<<16,HEX);
+  Serial.println(uint32_t(DPOrxCANAddress2)<<16,HEX);
 }
 
 
 
 
 void loop() {
+
   unsigned long currentMillis = millis();  // Get current time in milliseconds
 
   // Execute task 1
@@ -147,19 +159,19 @@ void loop() {
     SendKeepAlive();
   }
 
-  // Execute task 2 
+  // Execute task 2
   if (currentMillis - task2Millis >= task2Interval) {
     task2Millis = currentMillis;
     SendAnalogValues();
   }
 
-  // Execute task 3 
+  // Execute task 3
   if (currentMillis - task3Millis >= task3Interval) {
     task3Millis = currentMillis;
     DPOSafeSate();
   }
 
-  // Execute task 4 
+  // Execute task 4
   if (currentMillis - task4Millis >= task4Interval) {
     task4Millis = currentMillis;
     SendDPIValues();
@@ -400,46 +412,24 @@ void SendDPIValues() {
 
 void SendAnalogValues() {
 
-  // struct the analogue values
-  struct m2C1truct {
-    unsigned int AVI1_V : 16;  //0:3-1:0
-    unsigned int AVI2_V : 16;  //2:3-3:0
-    unsigned int AVI3_V : 16;  //4:3-5:0
-    unsigned int AVI4_V : 16;  //6:3-7:0
-  };
+  // Create CAN message. Little Endian
+  Union_16x4_8x8 canMsg;
 
-  // union / make a struct
-  union union_m2C1 {
-    struct m2C1truct data;
-    byte bytes[8];
-  };
+  canMsg.uint16_arry[0] = analogRead(A0) * 4095 / 1023;  // read analogue value and scale to 12 bit
+  canMsg.uint16_arry[1] = analogRead(A1) * 4095 / 1023;  // read analogue value and scale to 12 bit
+  canMsg.uint16_arry[2] = analogRead(A2) * 4095 / 1023;  // read analogue value and scale to 12 bit
+  canMsg.uint16_arry[3] = analogRead(A3) * 4095 / 1023;  // read analogue value and scale to 12 bit
 
-  // construct the can message
-  struct canMsg {
-    union_m2C1 m2C1;
-  } canMsg;
-
-
-  scaledvalue1 = map(analogRead(A0), 0, 1023, 0, 4095);  // read analogue value and scale to 12 bit
-  scaledvalue2 = map(analogRead(A1), 0, 1023, 0, 4095);  // read analogue value and scale to 12 bit
-  scaledvalue3 = map(analogRead(A2), 0, 1023, 0, 4095);  // read analogue value and scale to 12 bit
-  scaledvalue4 = map(analogRead(A3), 0, 1023, 0, 4095);  // read analogue value and scale to 12 bit
-
-  canMsg.m2C1.data.AVI1_V = scaledvalue1;  // add scaled analogue value to message
-  canMsg.m2C1.data.AVI2_V = scaledvalue2;  // add scaled analogue value to message
-  canMsg.m2C1.data.AVI3_V = scaledvalue3;  // add scaled analogue value to message
-  canMsg.m2C1.data.AVI4_V = scaledvalue4;  // add scaled analogue value to message
-
-//constuct the can message with correct bytes
+  //constuct the can message with correct bytes in Big Endian
   byte SendAnalogue[8] = {
-    canMsg.m2C1.bytes[1],
-    canMsg.m2C1.bytes[0],
-    canMsg.m2C1.bytes[3],
-    canMsg.m2C1.bytes[2],
-    canMsg.m2C1.bytes[5],
-    canMsg.m2C1.bytes[4],
-    canMsg.m2C1.bytes[7],
-    canMsg.m2C1.bytes[6]
+    canMsg.byte_arry[1],
+    canMsg.byte_arry[0],
+    canMsg.byte_arry[3],
+    canMsg.byte_arry[2],
+    canMsg.byte_arry[5],
+    canMsg.byte_arry[4],
+    canMsg.byte_arry[7],
+    canMsg.byte_arry[6]
   };
 
   CAN0.sendMsgBuf(AVIsendCANAddress, 0, 8, SendAnalogue);  // send the can message onto the bus
